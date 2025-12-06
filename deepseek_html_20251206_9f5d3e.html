@@ -1,0 +1,2059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Blogger XML Theme Builder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --dark: #2d3748;
+            --light: #f8f9fa;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Glassmorphism Effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Neumorphism Effect */
+        .neomorph {
+            background: #f0f0f0;
+            border-radius: 20px;
+            box-shadow: 
+                20px 20px 60px #d9d9d9,
+                -20px -20px 60px #ffffff;
+        }
+
+        /* Minimalism */
+        .minimal {
+            background: white;
+            border: 1px solid #e5e7eb;
+            box-shadow: none;
+        }
+
+        /* Flat Design */
+        .flat {
+            background: #ffffff;
+            border: 2px solid #000;
+            box-shadow: 4px 4px 0 #000;
+        }
+
+        /* Material Design */
+        .material {
+            background: white;
+            box-shadow: 
+                0 1px 3px rgba(0,0,0,0.12),
+                0 1px 2px rgba(0,0,0,0.24);
+            transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+        }
+
+        .material:hover {
+            box-shadow: 
+                0 14px 28px rgba(0,0,0,0.25),
+                0 10px 10px rgba(0,0,0,0.22);
+        }
+
+        /* Brutalism */
+        .brutal {
+            background: yellow;
+            border: 3px solid black;
+            box-shadow: 8px 8px 0 black;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 95vh;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .theme-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .theme-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .theme-btn.active {
+            background: white;
+            color: var(--primary);
+        }
+
+        .export-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .export-btn:hover {
+            background: #0da271;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Control Panel */
+        .control-panel {
+            width: 320px;
+            background: var(--light);
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-tabs {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .panel-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: #6b7280;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .panel-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* Element Inspector */
+        .element-inspector {
+            width: 300px;
+            background: white;
+            border-left: 1px solid #e5e7eb;
+            padding: 20px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .element-inspector.active {
+            display: block;
+        }
+
+        .inspector-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .preview-panel {
+            flex: 1;
+            background: #f3f4f6;
+            padding: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-header {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .preview-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .device-selector {
+            display: flex;
+            gap: 5px;
+            background: #e5e7eb;
+            padding: 5px;
+            border-radius: 8px;
+        }
+
+        .device-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            background: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .device-btn.active {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid #d1d5db;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .control-btn:hover {
+            background: #f3f4f6;
+            transform: scale(1.05);
+        }
+
+        .preview-container {
+            flex: 1;
+            background: white;
+            border-radius: 10px;
+            overflow: auto;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
+            transform-origin: top left;
+            transition: transform 0.3s ease;
+        }
+
+        /* Control Sections */
+        .control-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .section-content {
+            display: block;
+        }
+
+        .section-collapsed .section-content {
+            display: none;
+        }
+
+        .section-collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            color: #4b5563;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-value {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-with-unit {
+            flex: 1;
+            position: relative;
+        }
+
+        .unit {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .range-slider {
+            width: 100%;
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .color-picker-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .color-preview {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            border: 2px solid #e5e7eb;
+            cursor: pointer;
+        }
+
+        .color-input {
+            flex: 1;
+        }
+
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            border-radius: 6px;
+            background: #f9fafb;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-item:hover {
+            background: #f3f4f6;
+        }
+
+        .checkbox-item input {
+            margin: 0;
+        }
+
+        /* Style Presets */
+        .style-presets {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .style-preset {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .style-preset:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .style-preset.active {
+            border-color: var(--primary);
+        }
+
+        .style-icon {
+            font-size: 20px;
+        }
+
+        .style-name {
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* Button Group */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5b6bc9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6270;
+            transform: translateY(-2px);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6b7280;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            background: #f3f4f6;
+            color: var(--dark);
+        }
+
+        .code-editor {
+            width: 100%;
+            height: 300px;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: none;
+            margin-bottom: 20px;
+        }
+
+        /* Preview Elements */
+        .preview-blog {
+            min-height: 100%;
+            padding: 30px;
+        }
+
+        .blog-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 60px 40px;
+            border-radius: 15px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .blog-title {
+            font-size: 48px;
+            margin-bottom: 15px;
+            font-weight: 800;
+        }
+
+        .blog-description {
+            font-size: 20px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .search-bar {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .nav-link {
+            padding: 10px 20px;
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .main-layout {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .content-area {
+            flex: 2;
+        }
+
+        .sidebar {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .blog-post {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .post-title {
+            font-size: 32px;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        .post-meta {
+            display: flex;
+            gap: 20px;
+            color: #6b7280;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f3f4f6;
+        }
+
+        .post-content {
+            color: #4b5563;
+            line-height: 1.8;
+            font-size: 16px;
+        }
+
+        .sidebar-widget {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .widget-title {
+            font-size: 20px;
+            color: var(--dark);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .widget-content ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .widget-content li {
+            padding: 12px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .widget-content li:last-child {
+            border-bottom: none;
+        }
+
+        .blog-footer {
+            background: var(--dark);
+            color: white;
+            padding: 50px 40px;
+            border-radius: 15px;
+            margin-top: 50px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .selected-element {
+            outline: 2px dashed var(--primary);
+            outline-offset: 2px;
+            position: relative;
+        }
+
+        .selected-element::after {
+            content: attr(data-element);
+            position: absolute;
+            top: -25px;
+            left: 0;
+            background: var(--primary);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .main-content {
+                flex-direction: column;
+            }
+            .control-panel, .preview-panel, .element-inspector {
+                width: 100%;
+            }
+            .element-inspector {
+                order: 3;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="header-left">
+                <div class="logo">
+                    <i class="fas fa-paint-brush"></i>
+                    <span>Blogger Theme Pro</span>
+                </div>
+                <div class="theme-selector">
+                    <button class="theme-btn active" data-theme="glass">Glass</button>
+                    <button class="theme-btn" data-theme="minimal">Minimal</button>
+                    <button class="theme-btn" data-theme="flat">Flat</button>
+                    <button class="theme-btn" data-theme="material">Material</button>
+                    <button class="theme-btn" data-theme="brutal">Brutal</button>
+                </div>
+            </div>
+            <button class="export-btn" id="exportBtn">
+                <i class="fas fa-download"></i> Export XML
+            </button>
+        </header>
+
+        <div class="main-content">
+            <!-- Control Panel -->
+            <div class="control-panel">
+                <div class="panel-tabs">
+                    <button class="panel-tab active" data-tab="elements">Elements</button>
+                    <button class="panel-tab" data-tab="styles">Styles</button>
+                    <button class="panel-tab" data-tab="layout">Layout</button>
+                    <button class="panel-tab" data-tab="code">Code</button>
+                </div>
+                
+                <div class="tab-content">
+                    <!-- Elements Tab -->
+                    <div class="tab-pane active" id="tab-elements">
+                        <div class="control-section">
+                            <div class="section-header" onclick="toggleSection(this)">
+                                <h3 class="section-title">
+                                    <i class="fas fa-heading"></i>
+                                    Header Elements
+                                </h3>
+                                <i class="fas fa-chevron-down toggle-icon"></i>
+                            </div>
+                            <div class="section-content">
+                                <div class="checkbox-grid">
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="headerLogo" checked>
+                                        <span>Logo</span>
+                                    </label>
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="headerTitle" checked>
+                                        <span>Blog Title</span>
+                                    </label>
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="headerDesc" checked>
+                                        <span>Description</span>
+                                    </label>
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="headerSearch" checked>
+                                        <span>Search Bar</span>
+                                    </label>
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="headerSocial" checked>
+                                        <span>Social Icons</span>
+                                    </label>
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="headerNav" checked>
+                                        <span>Navigation</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="control-section">
+                            <div class="section-header" onclick="toggleSection(this)">
+                                <h3 class="section-title">
+                                    <i class="fas fa-newspaper"></i>
+                                    Content Elements
+                                </h3>
+                                <i class="fas fa-chevron-down toggle-icon"></i>
+                            </div>
+                            <div class="section-content">
+                                <div class="checkbox-grid">
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="contentPost" checked>
+                                        <span>Post Cards</span>
+                                    </label>
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="contentThumb" checked>
+                                        <span>Featured Image</span>
+                                    </label>
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="contentMeta" checked>
+                                        <span>Post Metadata</span>
+                                    </label>
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="contentExcerpt" checked>
+                                        <span>Post Excerpt</span>
+                                    </label>
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="contentReadMore" checked>
+                                        <span>Read More</span>
+                                    </label>
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="contentPagination" checked>
+                                        <span>Pagination</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="control-section">
+                            <div class="section-header" onclick="toggleSection(this)">
+                                <h3 class="section-title">
+                                    <i class="fas fa-columns"></i>
+                                    Sidebar Widgets
+                                </h3>
+                                <i class="fas fa-chevron-down toggle-icon"></i>
+                            </div>
+                            <div class="section-content">
+                                <div class="checkbox-grid">
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="widgetAbout" checked>
+                                        <span>About Me</span>
+                                    </label>
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="widgetCategories" checked>
+                                        <span>Categories</span>
+                                    </label>
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="widgetRecent" checked>
+                                        <span>Recent Posts</span>
+                                    </label>
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="widgetTags" checked>
+                                        <span>Tags Cloud</span>
+                                    </label>
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="widgetNewsletter" checked>
+                                        <span>Newsletter</span>
+                                    </label>
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="widgetSocial" checked>
+                                        <span>Social Feed</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="control-section">
+                            <div class="section-header" onclick="toggleSection(this)">
+                                <h3 class="section-title">
+                                    <i class="fas fa-shoe-prints"></i>
+                                    Footer Elements
+                                </h3>
+                                <i class="fas fa-chevron-down toggle-icon"></i>
+                            </div>
+                            <div class="section-content">
+                                <div class="checkbox-grid">
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="footerCopyright" checked>
+                                        <span>Copyright</span>
+                                    </label>
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="footerLinks" checked>
+                                        <span>Quick Links</span>
+                                    </label>
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="footerSocial" checked>
+                                        <span>Social Links</span>
+                                    </label>
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="footerBackTop" checked>
+                                        <span>Back to Top</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Styles Tab -->
+                    <div class="tab-pane" id="tab-styles">
+                        <div class="control-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-palette"></i>
+                                Style Presets
+                            </h3>
+                            <div class="style-presets">
+                                <div class="style-preset glass active" data-style="glass">
+                                    <i class="fas fa-wine-glass-alt style-icon"></i>
+                                    <span class="style-name">Glassmorphism</span>
+                                </div>
+                                <div class="style-preset minimal" data-style="minimal">
+                                    <i class="fas fa-minus style-icon"></i>
+                                    <span class="style-name">Minimalism</span>
+                                </div>
+                                <div class="style-preset flat" data-style="flat">
+                                    <i class="fas fa-square style-icon"></i>
+                                    <span class="style-name">Flat Design</span>
+                                </div>
+                                <div class="style-preset material" data-style="material">
+                                    <i class="fas fa-layers style-icon"></i>
+                                    <span class="style-name">Material</span>
+                                </div>
+                                <div class="style-preset neomorph" data-style="neomorph">
+                                    <i class="fas fa-circle style-icon"></i>
+                                    <span class="style-name">Neumorphism</span>
+                                </div>
+                                <div class="style-preset brutal" data-style="brutal">
+                                    <i class="fas fa-bolt style-icon"></i>
+                                    <span class="style-name">Brutalism</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="control-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-fill-drip"></i>
+                                Color Scheme
+                            </h3>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <span>Primary Color</span>
+                                    <span class="form-value" id="primaryColorValue">#667eea</span>
+                                </label>
+                                <div class="color-picker-group">
+                                    <div class="color-preview" id="primaryColorPreview" style="background: #667eea;"></div>
+                                    <input type="color" class="color-input form-control" id="primaryColor" value="#667eea">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <span>Secondary Color</span>
+                                    <span class="form-value" id="secondaryColorValue">#764ba2</span>
+                                </label>
+                                <div class="color-picker-group">
+                                    <div class="color-preview" id="secondaryColorPreview" style="background: #764ba2;"></div>
+                                    <input type="color" class="color-input form-control" id="secondaryColor" value="#764ba2">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <span>Background Color</span>
+                                    <span class="form-value" id="bgColorValue">#ffffff</span>
+                                </label>
+                                <div class="color-picker-group">
+                                    <div class="color-preview" id="bgColorPreview" style="background: #ffffff;"></div>
+                                    <input type="color" class="color-input form-control" id="backgroundColor" value="#ffffff">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="control-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-font"></i>
+                                Typography
+                            </h3>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <span>Font Family</span>
+                                    <span class="form-value" id="fontFamilyValue">Segoe UI</span>
+                                </label>
+                                <select class="form-control" id="fontFamily">
+                                    <option value="'Segoe UI', system-ui">Segoe UI</option>
+                                    <option value="'Inter', sans-serif">Inter</option>
+                                    <option value="'Poppins', sans-serif">Poppins</option>
+                                    <option value="'Roboto', sans-serif">Roboto</option>
+                                    <option value="'Montserrat', sans-serif">Montserrat</option>
+                                    <option value="'Open Sans', sans-serif">Open Sans</option>
+                                    <option value="'Playfair Display', serif">Playfair Display</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <span>Base Font Size</span>
+                                    <span class="form-value" id="fontSizeValue">16px</span>
+                                </label>
+                                <input type="range" class="range-slider" id="fontSize" min="12" max="24" value="16">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Layout Tab -->
+                    <div class="tab-pane" id="tab-layout">
+                        <div class="control-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-border-all"></i>
+                                Layout Structure
+                            </h3>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <span>Layout Type</span>
+                                    <span class="form-value" id="layoutValue">Right Sidebar</span>
+                                </label>
+                                <div class="checkbox-grid">
+                                    <label class="checkbox-item">
+                                        <input type="radio" name="layout" value="left-sidebar">
+                                        <span>Left Sidebar</span>
+                                    </label>
+                                    <label class="checkbox-item">
+                                        <input type="radio" name="layout" value="right-sidebar" checked>
+                                        <span>Right Sidebar</span>
+                                    </label>
+                                    <label class="checkbox-item">
+                                        <input type="radio" name="layout" value="no-sidebar">
+                                        <span>Full Width</span>
+                                    </label>
+                                    <label class="checkbox-item">
+                                        <input type="radio" name="layout" value="grid">
+                                        <span>Grid Layout</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <span>Container Width</span>
+                                    <span class="form-value" id="containerWidthValue">1200px</span>
+                                </label>
+                                <input type="range" class="range-slider" id="containerWidth" min="800" max="1600" value="1200">
+                            </div>
+                        </div>
+
+                        <div class="control-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-box"></i>
+                                Spacing & Padding
+                            </h3>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <span>Content Padding</span>
+                                    <span class="form-value" id="contentPaddingValue">40px</span>
+                                </label>
+                                <input type="range" class="range-slider" id="contentPadding" min="10" max="100" value="40">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <span>Gap Between Elements</span>
+                                    <span class="form-value" id="elementGapValue">30px</span>
+                                </label>
+                                <input type="range" class="range-slider" id="elementGap" min="10" max="80" value="30">
+                            </div>
+                        </div>
+
+                        <div class="control-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-border-style"></i>
+                                Border Radius
+                            </h3>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <span>Border Radius</span>
+                                    <span class="form-value" id="borderRadiusValue">12px</span>
+                                </label>
+                                <input type="range" class="range-slider" id="borderRadius" min="0" max="50" value="12">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Code Tab -->
+                    <div class="tab-pane" id="tab-code">
+                        <div class="control-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-code"></i>
+                                Custom CSS
+                            </h3>
+                            <textarea class="code-editor" id="customCSS" placeholder="Add your custom CSS here..."></textarea>
+                            <button class="btn btn-primary" onclick="applyCustomCSS()">
+                                <i class="fas fa-play"></i> Apply CSS
+                            </button>
+                        </div>
+
+                        <div class="control-section">
+                            <h3 class="section-title">
+                                <i class="fab fa-js"></i>
+                                Custom JavaScript
+                            </h3>
+                            <textarea class="code-editor" id="customJS" placeholder="Add your custom JavaScript here..."></textarea>
+                            <button class="btn btn-primary" onclick="applyCustomJS()">
+                                <i class="fas fa-play"></i> Apply JavaScript
+                            </button>
+                        </div>
+
+                        <div class="control-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-magic"></i>
+                                Advanced Settings
+                            </h3>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <span>CSS Prefix</span>
+                                </label>
+                                <input type="text" class="form-control" id="cssPrefix" placeholder=".my-blog">
+                            </div>
+                            <div class="btn-group">
+                                <button class="btn btn-primary" onclick="exportCSS()">
+                                    <i class="fas fa-download"></i> Export CSS
+                                </button>
+                                <button class="btn btn-secondary" onclick="resetAll()">
+                                    <i class="fas fa-undo"></i> Reset All
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview Panel -->
+            <div class="preview-panel">
+                <div class="preview-header">
+                    <h3>Live Preview</h3>
+                    <div class="preview-controls">
+                        <div class="device-selector">
+                            <button class="device-btn active" data-device="desktop">
+                                <i class="fas fa-desktop"></i>
+                            </button>
+                            <button class="device-btn" data-device="tablet">
+                                <i class="fas fa-tablet-alt"></i>
+                            </button>
+                            <button class="device-btn" data-device="mobile">
+                                <i class="fas fa-mobile-alt"></i>
+                            </button>
+                        </div>
+                        <div class="zoom-controls">
+                            <button class="control-btn" id="zoomOut">
+                                <i class="fas fa-search-minus"></i>
+                            </button>
+                            <span id="zoomLevel">100%</span>
+                            <button class="control-btn" id="zoomIn">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                            <button class="control-btn" id="resetZoom">
+                                <i class="fas fa-expand-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="preview-container" id="previewContainer">
+                    <div class="preview-blog" id="previewBlog">
+                        <!-- Blog content will be generated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Element Inspector -->
+            <div class="element-inspector" id="elementInspector">
+                <div class="inspector-header">
+                    <h3>Element Inspector</h3>
+                    <button class="control-btn" onclick="closeInspector()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="control-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-vector-square"></i>
+                        Box Model
+                    </h3>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span>Margin</span>
+                            <span class="form-value" id="marginValue">0px</span>
+                        </label>
+                        <input type="range" class="range-slider" id="marginSlider" min="0" max="100" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span>Padding</span>
+                            <span class="form-value" id="paddingValue">20px</span>
+                        </label>
+                        <input type="range" class="range-slider" id="paddingSlider" min="0" max="100" value="20">
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-text-height"></i>
+                        Typography
+                    </h3>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span>Font Size</span>
+                            <span class="form-value" id="elementFontSize">16px</span>
+                        </label>
+                        <input type="range" class="range-slider" id="fontSizeSlider" min="8" max="72" value="16">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span>Line Height</span>
+                            <span class="form-value" id="lineHeightValue">1.5</span>
+                        </label>
+                        <input type="range" class="range-slider" id="lineHeightSlider" min="1" max="3" step="0.1" value="1.5">
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-border-all"></i>
+                        Borders
+                    </h3>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span>Border Width</span>
+                            <span class="form-value" id="borderWidthValue">1px</span>
+                        </label>
+                        <input type="range" class="range-slider" id="borderWidthSlider" min="0" max="10" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span>Border Radius</span>
+                            <span class="form-value" id="borderRadiusElementValue">8px</span>
+                        </label>
+                        <input type="range" class="range-slider" id="borderRadiusSlider" min="0" max="50" value="8">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span>Border Color</span>
+                        </label>
+                        <input type="color" class="form-control" id="borderColor" value="#e5e7eb">
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-fill-drip"></i>
+                        Colors & Background
+                    </h3>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span>Background Color</span>
+                        </label>
+                        <input type="color" class="form-control" id="elementBackground" value="#ffffff">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            <span>Text Color</span>
+                        </label>
+                        <input type="color" class="form-control" id="elementColor" value="#000000">
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="applyElementStyles()" style="width: 100%;">
+                    <i class="fas fa-check"></i> Apply Changes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for XML Output -->
+    <div class="modal" id="xmlModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Your Blogger XML Template</h3>
+                <button class="close-modal" id="closeModal">&times;</button>
+            </div>
+            <p>Copy the XML code below and save it as an .xml file. Upload it to your Blogger dashboard.</p>
+            <textarea class="code-editor" id="xmlOutput" readonly></textarea>
+            <div class="btn-group">
+                <button class="btn btn-primary" id="copyXml">
+                    <i class="fas fa-copy"></i> Copy XML
+                </button>
+                <button class="btn btn-secondary" id="downloadXml">
+                    <i class="fas fa-download"></i> Download
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global Variables
+        let currentZoom = 1;
+        let selectedElement = null;
+        let currentStyle = 'glass';
+        let themeSettings = {
+            colors: {
+                primary: '#667eea',
+                secondary: '#764ba2',
+                background: '#ffffff',
+                text: '#2d3748'
+            },
+            typography: {
+                fontFamily: "'Segoe UI', system-ui",
+                fontSize: '16px'
+            },
+            layout: {
+                type: 'right-sidebar',
+                containerWidth: '1200px',
+                borderRadius: '12px'
+            },
+            elements: {
+                header: true,
+                sidebar: true,
+                footer: true
+            }
+        };
+
+        // Initialize Application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            generatePreview();
+            setupEventListeners();
+            setupElementSelection();
+        });
+
+        function initializeApp() {
+            // Set initial values
+            updateColorPreviews();
+            setupTabNavigation();
+            setupThemeButtons();
+            setupDevicePreview();
+        }
+
+        function setupEventListeners() {
+            // Export Button
+            document.getElementById('exportBtn').addEventListener('click', generateXMLTemplate);
+            document.getElementById('copyXml').addEventListener('click', copyXMLToClipboard);
+            document.getElementById('downloadXml').addEventListener('click', downloadXML);
+            document.getElementById('closeModal').addEventListener('click', () => {
+                document.getElementById('xmlModal').classList.remove('active');
+            });
+
+            // Zoom Controls
+            document.getElementById('zoomIn').addEventListener('click', () => adjustZoom(0.1));
+            document.getElementById('zoomOut').addEventListener('click', () => adjustZoom(-0.1));
+            document.getElementById('resetZoom').addEventListener('click', resetZoom);
+
+            // Color Pickers
+            document.querySelectorAll('input[type="color"]').forEach(picker => {
+                picker.addEventListener('input', updateColorPreviews);
+                picker.addEventListener('change', updatePreview);
+            });
+
+            // Range Sliders
+            document.querySelectorAll('.range-slider').forEach(slider => {
+                slider.addEventListener('input', updateSliderValue);
+                slider.addEventListener('change', updatePreview);
+            });
+
+            // Checkboxes and Radios
+            document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(input => {
+                input.addEventListener('change', updatePreview);
+            });
+
+            // Select boxes
+            document.querySelectorAll('select').forEach(select => {
+                select.addEventListener('change', updatePreview);
+            });
+        }
+
+        function setupTabNavigation() {
+            document.querySelectorAll('.panel-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.dataset.tab;
+                    
+                    // Update active tab
+                    document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show corresponding content
+                    document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+                    document.getElementById(`tab-${tabId}`).classList.add('active');
+                });
+            });
+        }
+
+        function setupThemeButtons() {
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const theme = this.dataset.theme;
+                    
+                    // Update active button
+                    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Apply theme to app container
+                    const appContainer = document.querySelector('.app-container');
+                    document.querySelectorAll('[class*="theme-"]').forEach(cls => {
+                        appContainer.classList.remove(cls);
+                    });
+                    appContainer.classList.add(`theme-${theme}`);
+                    currentStyle = theme;
+                    
+                    updatePreview();
+                });
+            });
+        }
+
+        function setupDevicePreview() {
+            document.querySelectorAll('.device-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const device = this.dataset.device;
+                    
+                    // Update active button
+                    document.querySelectorAll('.device-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Apply device size
+                    const container = document.getElementById('previewContainer');
+                    container.style.width = getDeviceWidth(device);
+                    container.style.margin = 'auto';
+                });
+            });
+        }
+
+        function getDeviceWidth(device) {
+            switch(device) {
+                case 'desktop': return '100%';
+                case 'tablet': return '768px';
+                case 'mobile': return '375px';
+                default: return '100%';
+            }
+        }
+
+        function setupElementSelection() {
+            document.getElementById('previewBlog').addEventListener('click', function(e) {
+                const element = e.target.closest('[data-element]');
+                if (element && !element.classList.contains('selected-element')) {
+                    // Remove previous selection
+                    document.querySelectorAll('.selected-element').forEach(el => {
+                        el.classList.remove('selected-element');
+                    });
+                    
+                    // Select new element
+                    element.classList.add('selected-element');
+                    selectedElement = element;
+                    
+                    // Open inspector with element properties
+                    openInspector(element);
+                    e.stopPropagation();
+                }
+            });
+
+            // Click outside to deselect
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('[data-element]') && !e.target.closest('.element-inspector')) {
+                    document.querySelectorAll('.selected-element').forEach(el => {
+                        el.classList.remove('selected-element');
+                    });
+                    selectedElement = null;
+                    closeInspector();
+                }
+            });
+        }
+
+        function openInspector(element) {
+            const inspector = document.getElementById('elementInspector');
+            inspector.classList.add('active');
+            
+            // Set current values
+            const computedStyle = getComputedStyle(element);
+            
+            // Margin
+            const margin = parseInt(computedStyle.marginTop) || 0;
+            document.getElementById('marginSlider').value = margin;
+            document.getElementById('marginValue').textContent = `${margin}px`;
+            
+            // Padding
+            const padding = parseInt(computedStyle.paddingTop) || 20;
+            document.getElementById('paddingSlider').value = padding;
+            document.getElementById('paddingValue').textContent = `${padding}px`;
+            
+            // Font Size
+            const fontSize = parseInt(computedStyle.fontSize) || 16;
+            document.getElementById('fontSizeSlider').value = fontSize;
+            document.getElementById('elementFontSize').textContent = `${fontSize}px`;
+            
+            // Border Radius
+            const borderRadius = parseInt(computedStyle.borderRadius) || 8;
+            document.getElementById('borderRadiusSlider').value = borderRadius;
+            document.getElementById('borderRadiusElementValue').textContent = `${borderRadius}px`;
+            
+            // Update other sliders...
+        }
+
+        function closeInspector() {
+            document.getElementById('elementInspector').classList.remove('active');
+        }
+
+        function applyElementStyles() {
+            if (!selectedElement) return;
+            
+            // Get values from sliders
+            const margin = document.getElementById('marginSlider').value + 'px';
+            const padding = document.getElementById('paddingSlider').value + 'px';
+            const fontSize = document.getElementById('fontSizeSlider').value + 'px';
+            const borderRadius = document.getElementById('borderRadiusSlider').value + 'px';
+            const borderColor = document.getElementById('borderColor').value;
+            const backgroundColor = document.getElementById('elementBackground').value;
+            const textColor = document.getElementById('elementColor').value;
+            
+            // Apply styles
+            selectedElement.style.margin = margin;
+            selectedElement.style.padding = padding;
+            selectedElement.style.fontSize = fontSize;
+            selectedElement.style.borderRadius = borderRadius;
+            selectedElement.style.borderColor = borderColor;
+            selectedElement.style.backgroundColor = backgroundColor;
+            selectedElement.style.color = textColor;
+            
+            // Update preview values
+            updateSliderValue(document.getElementById('marginSlider'));
+            updateSliderValue(document.getElementById('paddingSlider'));
+            updateSliderValue(document.getElementById('fontSizeSlider'));
+            updateSliderValue(document.getElementById('borderRadiusSlider'));
+        }
+
+        function toggleSection(header) {
+            const section = header.parentElement;
+            section.classList.toggle('section-collapsed');
+        }
+
+        function updateColorPreviews() {
+            const primaryColor = document.getElementById('primaryColor').value;
+            const secondaryColor = document.getElementById('secondaryColor').value;
+            const bgColor = document.getElementById('backgroundColor').value;
+            
+            document.getElementById('primaryColorPreview').style.background = primaryColor;
+            document.getElementById('secondaryColorPreview').style.background = secondaryColor;
+            document.getElementById('bgColorPreview').style.background = bgColor;
+            
+            document.getElementById('primaryColorValue').textContent = primaryColor;
+            document.getElementById('secondaryColorValue').textContent = secondaryColor;
+            document.getElementById('bgColorValue').textContent = bgColor;
+            
+            // Update CSS variables
+            document.documentElement.style.setProperty('--primary', primaryColor);
+            document.documentElement.style.setProperty('--secondary', secondaryColor);
+        }
+
+        function updateSliderValue(event) {
+            const slider = event.target || event;
+            const valueDisplay = document.getElementById(slider.id + 'Value');
+            if (valueDisplay) {
+                valueDisplay.textContent = slider.value + (slider.id.includes('Width') || slider.id.includes('Size') || slider.id.includes('Radius') || slider.id.includes('Padding') ? 'px' : '');
+            }
+        }
+
+        function adjustZoom(delta) {
+            currentZoom = Math.max(0.5, Math.min(2, currentZoom + delta));
+            document.getElementById('previewContainer').style.transform = `scale(${currentZoom})`;
+            document.getElementById('zoomLevel').textContent = `${Math.round(currentZoom * 100)}%`;
+        }
+
+        function resetZoom() {
+            currentZoom = 1;
+            document.getElementById('previewContainer').style.transform = 'scale(1)';
+            document.getElementById('zoomLevel').textContent = '100%';
+        }
+
+        function generatePreview() {
+            const preview = document.getElementById('previewBlog');
+            const blogTitle = "My Awesome Blog";
+            const blogDesc = "Welcome to my creative space where I share thoughts, ideas, and inspiration";
+            
+            // Get current settings
+            const primaryColor = document.getElementById('primaryColor').value;
+            const secondaryColor = document.getElementById('secondaryColor').value;
+            const fontFamily = document.getElementById('fontFamily').value;
+            
+            preview.innerHTML = `
+                <header class="blog-header" data-element="header">
+                    <div class="container" data-element="header-container">
+                        <h1 class="blog-title" data-element="blog-title">${blogTitle}</h1>
+                        <p class="blog-description" data-element="blog-description">${blogDesc}</p>
+                        
+                        ${document.getElementById('headerSearch')?.checked ? `
+                        <div class="search-bar" data-element="search-bar">
+                            <input type="text" class="search-input" placeholder="Search posts...">
+                        </div>` : ''}
+                    </div>
+                </header>
+                
+                ${document.getElementById('headerNav')?.checked ? `
+                <nav class="navigation" data-element="navigation">
+                    <a href="#" class="nav-link" data-element="nav-link">Home</a>
+                    <a href="#" class="nav-link" data-element="nav-link">About</a>
+                    <a href="#" class="nav-link" data-element="nav-link">Blog</a>
+                    <a href="#" class="nav-link" data-element="nav-link">Contact</a>
+                </nav>` : ''}
+                
+                <div class="main-layout" data-element="main-layout">
+                    <div class="content-area" data-element="content-area">
+                        <article class="blog-post" data-element="blog-post">
+                            <h2 class="post-title" data-element="post-title">Getting Started with Blogger Theme Design</h2>
+                            <div class="post-meta" data-element="post-meta">
+                                <span><i class="far fa-calendar"></i> January 15, 2024</span>
+                                <span><i class="far fa-user"></i> By Admin</span>
+                                <span><i class="far fa-folder"></i> Design, Tutorial</span>
+                            </div>
+                            <div class="post-content" data-element="post-content">
+                                <p>Creating a custom Blogger theme has never been easier. With our theme builder, you can design every aspect of your blog without writing a single line of code. From colors and typography to layout and spacing, everything is customizable.</p>
+                                <p>This is a sample blog post that demonstrates how your content will look. You can customize every element using the controls on the left panel.</p>
+                            </div>
+                        </article>
+                        
+                        <article class="blog-post" data-element="blog-post">
+                            <h2 class="post-title" data-element="post-title">Responsive Design Best Practices</h2>
+                            <div class="post-meta" data-element="post-meta">
+                                <span><i class="far fa-calendar"></i> January 10, 2024</span>
+                                <span><i class="far fa-user"></i> By Author</span>
+                                <span><i class="far fa-folder"></i> Web Design, Responsive</span>
+                            </div>
+                            <div class="post-content" data-element="post-content">
+                                <p>In today's mobile-first world, responsive design is crucial. Your blog should look great on all devices - from desktop computers to smartphones.</p>
+                                <p>Our theme builder automatically generates responsive code that adapts to different screen sizes. You can preview how your theme looks on different devices using the device selector above.</p>
+                            </div>
+                        </article>
+                    </div>
+                    
+                    ${document.getElementById('widgetAbout')?.checked ? `
+                    <aside class="sidebar" data-element="sidebar">
+                        <div class="sidebar-widget" data-element="sidebar-widget">
+                            <h3 class="widget-title" data-element="widget-title">About Me</h3>
+                            <div class="widget-content" data-element="widget-content">
+                                <p>Welcome to my blog! I'm passionate about web design, blogging, and sharing knowledge. This space is dedicated to helping others create beautiful and functional websites.</p>
+                            </div>
+                        </div>
+                        
+                        ${document.getElementById('widgetCategories')?.checked ? `
+                        <div class="sidebar-widget" data-element="sidebar-widget">
+                            <h3 class="widget-title" data-element="widget-title">Categories</h3>
+                            <div class="widget-content" data-element="widget-content">
+                                <ul>
+                                    <li><a href="#">Web Design</a></li>
+                                    <li><a href="#">Blogging Tips</a></li>
+                                    <li><a href="#">Tutorials</a></li>
+                                    <li><a href="#">Inspiration</a></li>
+                                </ul>
+                            </div>
+                        </div>` : ''}
+                        
+                        ${document.getElementById('widgetRecent')?.checked ? `
+                        <div class="sidebar-widget" data-element="sidebar-widget">
+                            <h3 class="widget-title" data-element="widget-title">Recent Posts</h3>
+                            <div class="widget-content" data-element="widget-content">
+                                <ul>
+                                    <li><a href="#">Getting Started with Blogger</a></li>
+                                    <li><a href="#">Customizing Your Theme</a></li>
+                                    <li><a href="#">SEO Best Practices</a></li>
+                                    <li><a href="#">Monetizing Your Blog</a></li>
+                                </ul>
+                            </div>
+                        </div>` : ''}
+                    </aside>` : ''}
+                </div>
+                
+                <footer class="blog-footer" data-element="footer">
+                    <div class="footer-content" data-element="footer-content">
+                        <div>© 2024 My Awesome Blog. All rights reserved.</div>
+                        <div>
+                            <a href="#"><i class="fab fa-facebook"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fab fa-instagram"></i></a>
+                            <a href="#"><i class="fab fa-pinterest"></i></a>
+                        </div>
+                    </div>
+                </footer>
+            `;
+            
+            // Apply current styles
+            applyCurrentStyles();
+        }
+
+        function applyCurrentStyles() {
+            const preview = document.getElementById('previewBlog');
+            
+            // Apply color scheme
+            const primaryColor = document.getElementById('primaryColor').value;
+            const secondaryColor = document.getElementById('secondaryColor').value;
+            const bgColor = document.getElementById('backgroundColor').value;
+            
+            // Update CSS variables in preview
+            preview.style.setProperty('--primary', primaryColor);
+            preview.style.setProperty('--secondary', secondaryColor);
+            
+            // Apply background
+            preview.style.backgroundColor = bgColor;
+            
+            // Apply font family
+            const fontFamily = document.getElementById('fontFamily').value;
+            preview.style.fontFamily = fontFamily;
+            
+            // Apply font size
+            const fontSize = document.getElementById('fontSize').value + 'px';
+            preview.style.fontSize = fontSize;
+            
+            // Apply container width
+            const containerWidth = document.getElementById('containerWidth').value + 'px';
+            document.querySelectorAll('.container, .main-layout').forEach(el => {
+                el.style.maxWidth = containerWidth;
+            });
+            
+            // Apply spacing
+            const contentPadding = document.getElementById('contentPadding').value + 'px';
+            document.querySelectorAll('.blog-post, .sidebar-widget').forEach(el => {
+                el.style.padding = contentPadding;
+            });
+            
+            const elementGap = document.getElementById('elementGap').value + 'px';
+            document.querySelectorAll('.main-layout').forEach(el => {
+                el.style.gap = elementGap;
+            });
+            
+            // Apply border radius
+            const borderRadius = document.getElementById('borderRadius').value + 'px';
+            document.querySelectorAll('.blog-post, .sidebar-widget, .blog-header, .blog-footer').forEach(el => {
+                el.style.borderRadius = borderRadius;
+            });
+            
+            // Apply style preset
+            applyStylePreset(currentStyle);
+            
+            // Apply custom CSS
+            applyCustomCSS();
+        }
+
+        function applyStylePreset(style) {
+            const elements = document.querySelectorAll('[data-element]');
+            elements.forEach(el => {
+                // Remove all style classes
+                el.classList.remove('glass', 'minimal', 'flat', 'material', 'brutal', 'neomorph');
+                
+                // Add current style class
+                if (style !== 'none') {
+                    el.classList.add(style);
+                }
+            });
+        }
+
+        function applyCustomCSS() {
+            const customCSS = document.getElementById('customCSS').value;
+            const styleId = 'custom-css-style';
+            
+            let styleElement = document.getElementById(styleId);
+            if (!styleElement) {
+                styleElement = document.createElement('style');
+                styleElement.id = styleId;
+                document.head.appendChild(styleElement);
+            }
+            
+            styleElement.textContent = customCSS;
+        }
+
+        function applyCustomJS() {
+            const customJS = document.getElementById('customJS').value;
+            try {
+                // Remove previous custom JS
+                const oldScript = document.getElementById('custom-js-script');
+                if (oldScript) oldScript.remove();
+                
+                // Create and execute new JS
+                const script = document.createElement('script');
+                script.id = 'custom-js-script';
+                script.textContent = customJS;
+                document.head.appendChild(script);
+                
+                alert('Custom JavaScript applied successfully!');
+            } catch (error) {
+                alert('Error in JavaScript: ' + error.message);
+            }
+        }
+
+        function generateXMLTemplate() {
+            // Collect all settings
+            const settings = {
+                colors: {
+                    primary: document.getElementById('primaryColor').value,
+                    secondary: document.getElementById('secondaryColor').value,
+                    background: document.getElementById('backgroundColor').value,
+                    text: '#2d3748'
+                },
+                typography: {
+                    fontFamily: document.getElementById('fontFamily').value,
+                    fontSize: document.getElementById('fontSize').value + 'px'
+                },
+                layout: {
+                    type: document.querySelector('input[name="layout"]:checked')?.value || 'right-sidebar',
+                    containerWidth: document.getElementById('containerWidth').value + 'px',
+                    borderRadius: document.getElementById('borderRadius').value + 'px'
+                },
+                customCSS: document.getElementById('customCSS').value,
+                customJS: document.getElementById('customJS').value
+            };
+            
+            // Generate XML template
+            const xml = generateBloggerXML(settings);
+            document.getElementById('xmlOutput').value = xml;
+            document.getElementById('xmlModal').classList.add('active');
+        }
+
+        function generateBloggerXML(settings) {
+            // This is a simplified version - you would expand this with full Blogger XML structure
+            return `<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<html xmlns='http://www.w3.org/1999/xhtml' 
+      xmlns:b='http://www.google.com/2005/gml/b'
+      xmlns:data='http://www.google.com/2005/gml/data'
+      xmlns:expr='http://www.google.com/2005/gml/expr'>
+  <head>
+    <b:include data='blog' name='all-head-content'/>
+    <title><data:blog.pageTitle/></title>
+    
+    <b:skin><![CDATA[
+      /* Theme generated with Blogger Theme Pro */
+      /* Color Scheme */
+      :root {
+        --primary: ${settings.colors.primary};
+        --secondary: ${settings.colors.secondary};
+        --background: ${settings.colors.background};
+        --text: ${settings.colors.text};
+      }
+      
+      body {
+        font-family: ${settings.typography.fontFamily};
+        font-size: ${settings.typography.fontSize};
+        background: var(--background);
+        color: var(--text);
+        line-height: 1.6;
+      }
+      
+      .container {
+        max-width: ${settings.layout.containerWidth};
+        margin: 0 auto;
+      }
+      
+      ${settings.customCSS}
+    ]]></b:skin>
+    
+    ${settings.customJS ? `<script type='text/javascript'>
+      ${settings.customJS}
+    <\/script>` : ''}
+    
+  </head>
+  <body>
+    <b:section id='header' maxwidgets='1' showaddelement='no'>
+      <b:widget id='Header1' locked='true' title='Blog Header' type='Header'>
+        <b:includable id='main'>
+          <header class='blog-header'>
+            <div class='container'>
+              <h1 class='blog-title'><data:blog.title/></h1>
+              <p class='blog-description'><data:blog.description/></p>
+            </div>
+          </header>
+        </b:includable>
+      </b:widget>
+    </b:section>
+    
+    <main class='container'>
+      <b:section id='main' maxwidgets='1' showaddelement='no'>
+        <b:widget id='Blog1' locked='true' title='Blog Posts' type='Blog'>
+          <b:includable id='main'>
+            <b:loop values='data:posts' var='post'>
+              <article class='blog-post'>
+                <h2 class='post-title'><data:post.title/></h2>
+                <div class='post-content'><data:post.body/></div>
+              </article>
+            </b:loop>
+          </b:includable>
+        </b:widget>
+      </b:section>
+    </main>
+    
+    <b:section id='footer' maxwidgets='1' showaddelement='no'>
+      <b:widget id='Attribution1' locked='true' title='' type='Attribution'>
+        <b:includable id='main'>
+          <footer class='blog-footer'>
+            <div class='container'>
+              © <data:blog.title/> - All rights reserved.
+            </div>
+          </footer>
+        </b:includable>
+      </b:widget>
+    </b:section>
+  </body>
+</html>`;
+        }
+
+        function copyXMLToClipboard() {
+            const xmlOutput = document.getElementById('xmlOutput');
+            xmlOutput.select();
+            document.execCommand('copy');
+            
+            const copyBtn = document.getElementById('copyXml');
+            const originalText = copyBtn.innerHTML;
+            copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            
+            setTimeout(() => {
+                copyBtn.innerHTML = originalText;
+            }, 2000);
+        }
+
+        function downloadXML() {
+            const xml = document.getElementById('xmlOutput').value;
+            const blob = new Blob([xml], { type: 'application/xml' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'blogger-theme.xml';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function exportCSS() {
+            const customCSS = document.getElementById('customCSS').value;
+            const blob = new Blob([customCSS], { type: 'text/css' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'blogger-theme.css';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function resetAll() {
+            if (confirm('Are you sure you want to reset all settings?')) {
+                location.reload();
+            }
+        }
+
+        // Update preview when any setting changes
+        function updatePreview() {
+            generatePreview();
+            updateColorPreviews();
+            document.querySelectorAll('.range-slider').forEach(updateSliderValue);
+        }
+    </script>
+</body>
+</html>
