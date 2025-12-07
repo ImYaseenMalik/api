@@ -1,43 +1,48 @@
-// This is the default export for a Pages Function.
-// It receives the request and the environment variables (including DB).
-export async function onRequest(context) {
-    const { request, env } = context;
-    const url = new URL(request.url);
+export async function onRequestPost({ request, env }) {
+  const headers = {
+    'Access-Control-Allow-Origin': 'https://admin.infliker.fun',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Content-Type': 'application/json'
+  };
 
-    // This file specifically handles GET requests to /api/posts
-    // (If you used functions/api/posts.js, the path is already handled.)
+  // Handle preflight request
+  if (request.method === 'OPTIONS') return new Response(null, { headers });
 
-    if (request.method === 'GET') {
-        try {
-            // 1. Prepare the SQL query
-            // We select only necessary fields and filter for published posts.
-            const query = `
-                SELECT id, title, slug, featured_image, category, tags, created_at
-                FROM posts
-                WHERE is_published = 1
-                ORDER BY created_at DESC
-                LIMIT 10
-            `;
-
-            // 2. Execute the query using the D1 binding (env.DB)
-            const { results } = await env.DB.prepare(query).all();
-
-            // 3. Return the data as a JSON response
-            return new Response(JSON.stringify(results), {
-                headers: { 'Content-Type': 'application/json' },
-                status: 200,
-            });
-
-        } catch (e) {
-            // 4. Handle any errors (like a database connection issue)
-            console.error('API Error:', e);
-            return new Response(JSON.stringify({ error: e.message, description: "Could not fetch posts from the database." }), {
-                headers: { 'Content-Type': 'application/json' },
-                status: 500,
-            });
-        }
+  try {
+    // Get Authorization header
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ ok:false, error:'Unauthorized' }), { status:401, headers });
     }
 
-    // If the request method is not GET (e.g., POST, PUT), return a 405 error
-    return new Response('Method Not Allowed', { status: 405 });
+    const token = authHeader.split(' ')[1];
+
+    // Verify JWT using Web Crypto
+    async function verifyJWT(token, secret) {
+      const [header64, body64, sig64] = token.split('.');
+      const enc = new TextEncoder();
+      const key = await crypto.subtle.importKey('raw', enc.encode(secret), { name: 'HMAC', hash:'SHA-256' }, false, ['verify']);
+      const data = `${header64}.${body64}`;
+      const sig = Uint8Array.from(atob(sig64), c => c.charCodeAt(0));
+      const valid = await crypto.subtle.verify('HMAC', key, sig, enc.encode(data));
+      if (!valid) throw new Error('Invalid token');
+      return JSON.parse(atob(body64));
+    }
+
+    const payload = await verifyJWT(token, env.JWT_SECRET);
+
+    // Parse post body
+    const { title, slug, content, excerpt, published } = await request.json();
+
+    // Insert into posts table
+    await env.DB.prepare(
+      'INSERT INTO posts (title, slug, content, excerpt, published, author_id) VALUES (?, ?, ?, ?, ?, ?)'
+    ).bind(title, slug, content, excerpt, published ? 1 : 0, payload.id).run();
+
+    return new Response(JSON.stringify({ ok:true }), { headers });
+
+  } catch (err) {
+    return new Response(JSON.stringify({ ok:false, error: err.message }), { status:500, headers });
+  }
 }
