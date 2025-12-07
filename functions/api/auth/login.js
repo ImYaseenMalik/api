@@ -10,7 +10,7 @@ export async function onRequestPost({ request, env }) {
 
   const user = userRes.results[0];
 
-  // simple password check (replace with bcrypt if desired)
+  // simple password check (plain text for now)
   if(password !== user.password_hash){
     return new Response(JSON.stringify({ok:false, error:'Wrong password'}), {status:401, headers:{'Content-Type':'application/json'}});
   }
@@ -36,12 +36,11 @@ export async function onRequestPost({ request, env }) {
 
   const token = await createJWT({ id: user.id, email: user.email }, env.JWT_SECRET);
 
-return new Response(JSON.stringify({
-  ok: true,
-  token,
-  user: {
-    email: user.email
-  }
-}), {headers:{'Content-Type':'application/json'}});
-
+  return new Response(JSON.stringify({
+    ok: true,
+    token,
+    user: {
+      email: user.email
+    }
+  }), {headers:{'Content-Type':'application/json'}});
 }
