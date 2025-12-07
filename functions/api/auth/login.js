@@ -36,12 +36,12 @@ export async function onRequestPost({ request, env }) {
 
   const token = await createJWT({ id: user.id, email: user.email }, env.JWT_SECRET);
 
-  return new Response(JSON.stringify({
-    ok: true,
-    token,
-    user: {
-      email: user.email,
-      display_name: user.display_name
-    }
-  }), {headers:{'Content-Type':'application/json'}});
+return new Response(JSON.stringify({
+  ok: true,
+  token,
+  user: {
+    email: user.email
+  }
+}), {headers:{'Content-Type':'application/json'}});
+
 }
