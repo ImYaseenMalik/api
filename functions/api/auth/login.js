@@ -1,44 +1,42 @@
-// auth/login.js
-import { create, verify } from "https://deno.land/x/djwt@v2.8/mod.ts";
-
-// Simple SHA-256 hash function
-async function hashPassword(password) {
-  const enc = new TextEncoder();
-  const hashBuffer = await crypto.subtle.digest("SHA-256", enc.encode(password));
-  return btoa(String.fromCharCode(...new Uint8Array(hashBuffer)));
-}
-
+// functions/api/auth/login.js
 export async function onRequest({ request, env }) {
   const headers = {
-    "Access-Control-Allow-Origin": "https://admin.infliker.fun",
+    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Content-Type": "application/json",
   };
 
   if (request.method === "OPTIONS") return new Response(null, { headers });
 
-  try {
-    const { email, password } = await request.json();
-    const user = await env.DB.prepare("SELECT * FROM users WHERE email = ?")
-      .bind(email)
-      .first();
+  const { email, password } = await request.json();
 
-    if (!user) {
-      return new Response(JSON.stringify({ ok: false, error: "Invalid email/password" }), { status: 401, headers });
-    }
-
-    const hashed = await hashPassword(password);
-    if (hashed !== user.password_hash) {
-      return new Response(JSON.stringify({ ok: false, error: "Invalid email/password" }), { status: 401, headers });
-    }
-
-    const jwtPayload = { id: user.id, email: user.email };
-    const token = await create({ alg: "HS256", typ: "JWT" }, jwtPayload, env.JWT_SECRET);
-
-    return new Response(JSON.stringify({ ok: true, token }), { headers });
-
-  } catch (err) {
-    return new Response(JSON.stringify({ ok: false, error: err.message }), { status: 500, headers });
+  // Replace this with your real database validation
+  if (email !== "admin@test.com" || password !== "123456") {
+    return new Response(JSON.stringify({ ok: false, error: "Invalid login" }), {
+      status: 401,
+      headers,
+    });
   }
+
+  // JWT creation
+  const encoder = new TextEncoder();
+  const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
+  const payload = btoa(JSON.stringify({ email, exp: Date.now() + 1000 * 60 * 60 * 24 }));
+  const secret = env.JWT_SECRET; // Add this in Cloudflare dashboard
+
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+
+  const signatureBuffer = await crypto.subtle.sign("HMAC", key, encoder.encode(`${header}.${payload}`));
+  const signature = btoa(String.fromCharCode(...new Uint8Array(signatureBuffer)));
+
+  const token = `${header}.${payload}.${signature}`;
+
+  return new Response(JSON.stringify({ ok: true, token }), { headers });
 }
