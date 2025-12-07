@@ -1,21 +1,31 @@
-// functions/api/auth/login.js
 export async function onRequestPost({ request, env }) {
+  const headers = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': 'https://admin.infliker.fun',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+  };
+
+  // Handle preflight request
+  if (request.method === 'OPTIONS') {
+    return new Response(null, { headers });
+  }
+
   const { email, password } = await request.json();
 
-  // fetch user from D1
+  // Fetch user from D1
   const userRes = await env.DB.prepare('SELECT * FROM users WHERE email = ?').bind(email).all();
-  if(!userRes.results || userRes.results.length === 0){
-    return new Response(JSON.stringify({ok:false, error:'User not found'}), {status:401, headers:{'Content-Type':'application/json'}});
+  if (!userRes.results || userRes.results.length === 0) {
+    return new Response(JSON.stringify({ ok: false, error: 'User not found' }), { status: 401, headers });
   }
 
   const user = userRes.results[0];
 
-  // simple password check (plain text for now)
-  if(password !== user.password_hash){
-    return new Response(JSON.stringify({ok:false, error:'Wrong password'}), {status:401, headers:{'Content-Type':'application/json'}});
+  if (password !== user.password_hash) {
+    return new Response(JSON.stringify({ ok: false, error: 'Wrong password' }), { status: 401, headers });
   }
 
-  // create JWT using native Web Crypto
+  // Create JWT using Web Crypto
   async function createJWT(payload, secret) {
     const enc = new TextEncoder();
     const key = await crypto.subtle.importKey(
@@ -39,8 +49,6 @@ export async function onRequestPost({ request, env }) {
   return new Response(JSON.stringify({
     ok: true,
     token,
-    user: {
-      email: user.email
-    }
-  }), {headers:{'Content-Type':'application/json'}});
+    user: { email: user.email }
+  }), { headers });
 }
