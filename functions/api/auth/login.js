@@ -1,10 +1,11 @@
+// auth/login.js
 import { create, verify } from "https://deno.land/x/djwt@v2.8/mod.ts";
 
-// Passwords: use SHA-256 + base64
+// Simple SHA-256 hash function
 async function hashPassword(password) {
   const enc = new TextEncoder();
-  const data = await crypto.subtle.digest("SHA-256", enc.encode(password));
-  return btoa(String.fromCharCode(...new Uint8Array(data)));
+  const hashBuffer = await crypto.subtle.digest("SHA-256", enc.encode(password));
+  return btoa(String.fromCharCode(...new Uint8Array(hashBuffer)));
 }
 
 export async function onRequest({ request, env }) {
@@ -23,11 +24,14 @@ export async function onRequest({ request, env }) {
       .bind(email)
       .first();
 
-    if (!user) return new Response(JSON.stringify({ ok: false, error: "Invalid email/password" }), { status: 401, headers });
+    if (!user) {
+      return new Response(JSON.stringify({ ok: false, error: "Invalid email/password" }), { status: 401, headers });
+    }
 
     const hashed = await hashPassword(password);
-    if (hashed !== user.password_hash) 
+    if (hashed !== user.password_hash) {
       return new Response(JSON.stringify({ ok: false, error: "Invalid email/password" }), { status: 401, headers });
+    }
 
     const jwtPayload = { id: user.id, email: user.email };
     const token = await create({ alg: "HS256", typ: "JWT" }, jwtPayload, env.JWT_SECRET);
