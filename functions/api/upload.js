@@ -10,5 +10,5 @@ const key = `uploads/${Date.now()}-${file.name}`;
 await env.MEDIA.put(key, file.stream());
 
 
-return new Response(JSON.stringify({ok:true, url:`https://infliker-storage.<account>.r2.cloudflarestorage.com/${key}`}), {headers:{'Content-Type':'application/json'}});
+return new Response(JSON.stringify({ok:true, url:`https://infliker-storage.5385c41c502c2303fc569ae61992860b.r2.cloudflarestorage.com/${key}`}), {headers:{'Content-Type':'application/json'}});
 }
