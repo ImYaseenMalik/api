@@ -30,7 +30,7 @@ export async function onRequest(context) {
             // 4. Construct the public URL for the file
             // **IMPORTANT:** Replace 'your-r2-domain.r2.dev' with the actual R2 public access domain 
             // once you configure it in the next step. For now, this is a placeholder.
-            const publicUrl = `https://your-r2-domain.r2.dev/${fileKey}`; 
+            const publicUrl = `https://assets.infliker.fun/${fileKey}`; 
             
             // 5. Return the URL so the admin dashboard can save it to the D1 'posts' table
             return new Response(JSON.stringify({ 
