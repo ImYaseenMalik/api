@@ -1,42 +1,75 @@
 // functions/api/auth/login.js
-export async function onRequest({ request, env }) {
-  const headers = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization",
-    "Content-Type": "application/json",
-  };
+import { create, getNumericDate, verify } from "https://deno.land/x/djwt@v2.8/mod.ts";
 
-  if (request.method === "OPTIONS") return new Response(null, { headers });
+// ⚡ Secret for JWT signing — store in Cloudflare Pages secret in production
+const SECRET = Deno.env.get("JWT_SECRET") || "supersecret";
 
-  const { email, password } = await request.json();
+// Example users with hashed passwords (SHA-256)
+const users = [
+  {
+    username: "admin",
+    // hash of "admin123" using SHA-256
+    passwordHash: "a8b64babd2f2d9a76a9f72d48a0a1f30d18f71f5e7c0c0b0c9c9f9e6c9f8f7d8"
+  }
+];
 
-  // Replace this with your real database validation
-  if (email !== "admin@test.com" || password !== "123456") {
-    return new Response(JSON.stringify({ ok: false, error: "Invalid login" }), {
-      status: 401,
-      headers,
+// Function to hash password using SHA-256
+async function hashPassword(password) {
+  const enc = new TextEncoder();
+  const data = enc.encode(password);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+export async function onRequestPost({ request }) {
+  try {
+    const body = await request.json();
+    const { username, password } = body;
+
+    if (!username || !password) {
+      return new Response(JSON.stringify({ error: "Username and password required" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
+    // Find user
+    const user = users.find(u => u.username === username);
+    if (!user) {
+      return new Response(JSON.stringify({ error: "Invalid username or password" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
+    // Hash incoming password and compare
+    const passwordHash = await hashPassword(password);
+    if (passwordHash !== user.passwordHash) {
+      return new Response(JSON.stringify({ error: "Invalid username or password" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
+    // Create JWT
+    const payload = {
+      username,
+      exp: getNumericDate(60 * 60) // expires in 1 hour
+    };
+    const token = await create({ alg: "HS256", typ: "JWT" }, payload, SECRET);
+
+    return new Response(JSON.stringify({ token }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
+    });
+
+  } catch (err) {
+    console.error(err);
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
     });
   }
-
-  // JWT creation
-  const encoder = new TextEncoder();
-  const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
-  const payload = btoa(JSON.stringify({ email, exp: Date.now() + 1000 * 60 * 60 * 24 }));
-  const secret = env.JWT_SECRET; // Add this in Cloudflare dashboard
-
-  const key = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
-
-  const signatureBuffer = await crypto.subtle.sign("HMAC", key, encoder.encode(`${header}.${payload}`));
-  const signature = btoa(String.fromCharCode(...new Uint8Array(signatureBuffer)));
-
-  const token = `${header}.${payload}.${signature}`;
-
-  return new Response(JSON.stringify({ ok: true, token }), { headers });
 }
